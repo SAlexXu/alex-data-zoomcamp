@@ -1,0 +1,55 @@
+services:
+  pgdatabase:
+    image: postgres:17-alpine
+    container_name: postgres
+    environment:
+      # Use these when making the postgres localhost server
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'nyc_taxi'
+    ports:
+      - '5433:5432'
+    volumes:
+      - vol-pgdata:/var/lib/postgresql/data
+    networks:
+      - pg-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: on-failure
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      # Use these when logging into localhost:9000
+      PGADMIN_DEFAULT_EMAIL: "pgadmin@pgadmin.com"
+      PGADMIN_DEFAULT_PASSWORD: "pgadmin"
+    ports:
+      - "9000:80"
+    volumes:
+      - vol-pgadmin_data:/var/lib/pgadmin  
+    networks:
+      - pg-network
+    depends_on:
+      pgdatabase:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:80/ || exit 1"]
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    restart: on-failure:5
+
+volumes:
+  vol-pgdata:
+    name: vol-pgdata
+  vol-pgadmin_data:
+    name: vol-pgadmin_data
+
+networks:
+  pg-network:
+    name: pg-network

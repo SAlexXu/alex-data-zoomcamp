@@ -1,0 +1,50 @@
+services:
+  pgdatabase:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: ny_taxi
+    volumes:
+      - "./ny-taxi-volume:/var/lib/postgresql/data:rw"
+    ports:
+      - "5432:5432"
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+
+      - "8080:80"
+
+
+# Create docker with database
+winpty docker run -it \
+  -e POSTGRES_USER="root" \
+  -e POSTGRES_PASSWORD="root" \
+  -e POSTGRES_DB="ny_taxi" \
+  -v /c:/Code/data-engineering-zoomcamp/module-1-docker-terraform/ny_taxi_volume:/var/lib/postgresql/data \
+  -p 5433:5432 \
+  --network=pg-network \
+  --name pgdatabase \
+  postgres:13
+
+
+
+# Create docker with pgadmin
+winpty docker run -it \
+  -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
+  -e PGADMIN_DEFAULT_PASSWORD="root" \
+  -p 8080:80 \
+  --network=pg-network \
+  --name pgadmin \
+  dpage/pgadmin4
+
+
+docker pull dpage/pgadmin4
+
+
+  winpty pgcli -h localhost -p 5432 -u root -d ny_taxi
