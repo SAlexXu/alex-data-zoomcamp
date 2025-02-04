@@ -2,6 +2,7 @@
 # Keys
 module-1-docker-terraform/keys/
 *.json
+04_gcp_kv.yaml
 
 # csv files
 *.csv
